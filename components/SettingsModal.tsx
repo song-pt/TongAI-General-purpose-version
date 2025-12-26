@@ -170,7 +170,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <div className="p-6 bg-gray-50 flex gap-3 justify-end border-t border-gray-100 flex-shrink-0">
-          <button onClick={onClose} className="px-10 py-2.5 text-sm font-bold bg-gray-800 text-white rounded-xl shadow-lg active:scale-95 transition-all">完成退出</button>
+          <button onClick={onClose} className="px-10 py-2.5 text-sm font-bold bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-500/20 active:scale-95 transition-all">完成退出</button>
         </div>
       </div>
     </div>

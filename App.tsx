@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatArea from './components/ChatArea';
 import SettingsModal from './components/SettingsModal';
+import PresetModal from './components/PresetModal';
 import { Chat, Message, AISettings, InterfaceSettings } from './types';
 import { callAI } from './services/aiService';
 
@@ -32,6 +33,7 @@ const App: React.FC = () => {
   });
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isPresetOpen, setIsPresetOpen] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState(() => localStorage.getItem(SYSTEM_PROMPT_KEY) || "");
   
   const [settings, setSettings] = useState<AISettings>(() => {
@@ -102,6 +104,10 @@ const App: React.FC = () => {
     finally { setIsLoading(false); }
   };
 
+  const handleRenameChat = (id: string, newTitle: string) => {
+    setChats(prev => prev.map(c => c.id === id ? { ...c, title: newTitle } : c));
+  };
+
   return (
     <div className="h-screen w-screen relative overflow-hidden font-sans select-none">
       <div 
@@ -133,7 +139,9 @@ const App: React.FC = () => {
             setActiveChatId(newChat.id);
           }}
           onDeleteChat={(id) => setChats(prev => prev.filter(c => c.id !== id))}
+          onRenameChat={handleRenameChat}
           onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenPreset={() => setIsPresetOpen(true)}
         />
 
         <main className="flex-1 h-full min-w-0 select-text">
@@ -141,8 +149,6 @@ const App: React.FC = () => {
             activeChat={chats.find(c => c.id === activeChatId) || null}
             interfaceSettings={interfaceSettings}
             onSendMessage={handleSendMessage}
-            systemPrompt={systemPrompt}
-            onSystemPromptChange={setSystemPrompt}
             isLoading={isLoading}
             toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
             isSidebarOpen={isSidebarOpen}
@@ -156,6 +162,15 @@ const App: React.FC = () => {
           interfaceSettings={interfaceSettings}
           onSave={(s, i) => { setSettings(s); setInterfaceSettings(i); }}
           onClose={() => setIsSettingsOpen(false)}
+        />
+      )}
+
+      {isPresetOpen && (
+        <PresetModal
+          systemPrompt={systemPrompt}
+          onSave={setSystemPrompt}
+          onClose={() => setIsPresetOpen(false)}
+          interfaceSettings={interfaceSettings}
         />
       )}
     </div>

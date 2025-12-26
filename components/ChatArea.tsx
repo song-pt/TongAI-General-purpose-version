@@ -8,8 +8,6 @@ interface ChatAreaProps {
   activeChat: Chat | null;
   interfaceSettings: InterfaceSettings;
   onSendMessage: (text: string) => void;
-  systemPrompt: string;
-  onSystemPromptChange: (val: string) => void;
   isLoading: boolean;
   toggleSidebar: () => void;
   isSidebarOpen: boolean;
@@ -19,8 +17,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   activeChat,
   interfaceSettings,
   onSendMessage,
-  systemPrompt,
-  onSystemPromptChange,
   isLoading,
   toggleSidebar,
   isSidebarOpen
@@ -28,7 +24,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const systemPromptRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -39,11 +34,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-    if (systemPromptRef.current) {
-      systemPromptRef.current.style.height = 'auto';
-      systemPromptRef.current.style.height = `${systemPromptRef.current.scrollHeight}px`;
-    }
-  }, [inputText, systemPrompt]);
+  }, [inputText]);
 
   const handleSend = () => {
     if (!inputText.trim()) return;
@@ -55,7 +46,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   const panelOpacity = interfaceSettings.uiOpacity;
   const elementOpacity = interfaceSettings.compOpacity;
 
-  // 主容器面板背景：遵循用户选择的“透明/毛玻璃”切换
   const mainBgStyle: React.CSSProperties = {
     backgroundColor: `rgba(255, 255, 255, ${panelOpacity})`,
     backdropFilter: isFrosted ? 'blur(40px) saturate(180%)' : 'none',
@@ -63,10 +53,8 @@ const ChatArea: React.FC<ChatAreaProps> = ({
     transition: 'background-color 0.2s ease, backdrop-filter 0.3s ease',
   };
 
-  // 核心组件元素背景：始终保持 25px 模糊，无论全局设置如何
   const elementBgStyle: React.CSSProperties = {
     backgroundColor: `rgba(255, 255, 255, ${elementOpacity})`,
-    // 强制开启模糊，确保“后面的文字是模糊的”
     backdropFilter: 'blur(25px) saturate(160%)',
     WebkitBackdropFilter: 'blur(25px) saturate(160%)',
     border: '1px solid rgba(255, 255, 255, 0.25)',
@@ -75,7 +63,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   return (
     <div className="relative flex flex-col h-full rounded-[48px] shadow-2xl border border-white/40 overflow-hidden bg-transparent">
       
-      {/* 面板主背景层 */}
       <div 
         className="absolute inset-0 -z-10 pointer-events-none"
         style={mainBgStyle}
@@ -94,7 +81,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
 
       <div className="flex-1 relative overflow-hidden">
         <div className="absolute inset-0 overflow-y-auto custom-scrollbar z-10 scroll-smooth">
-          <div className="flex-shrink-0 h-48"></div> 
+          <div className="flex-shrink-0 h-10"></div> 
           
           <div className="px-8 py-6 space-y-10 flex-1">
             {activeChat?.messages.map((msg) => (
@@ -103,7 +90,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
                   style={{ 
                     backgroundColor: msg.role === 'user' ? 'rgba(37, 99, 235, 0.9)' : `rgba(255, 255, 255, ${elementOpacity})`,
                     border: '1px solid rgba(255, 255, 255, 0.15)',
-                    // 气泡即便在“透明面板”下，自身也保持模糊感
                     backdropFilter: msg.role !== 'user' ? 'blur(15px)' : 'none',
                     WebkitBackdropFilter: msg.role !== 'user' ? 'blur(15px)' : 'none',
                   }}
@@ -137,28 +123,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
           <div className="flex-shrink-0 h-44"></div> 
         </div>
 
-        {/* 悬浮预设词卡片：始终毛玻璃 */}
-        <div className="absolute top-4 inset-x-0 z-50 px-8 pointer-events-none">
-          <div 
-            style={elementBgStyle}
-            className="p-5 rounded-[36px] pointer-events-auto shadow-xl"
-          >
-            <div className="flex items-center gap-2 mb-3 text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] pl-2">
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-              自动拼接预设
-            </div>
-            <div className="bg-white/10 border border-white/5 rounded-[22px] px-5 py-0.5 focus-within:bg-white/30 transition-all duration-300">
-              <textarea 
-                ref={systemPromptRef} rows={1} value={systemPrompt}
-                onChange={(e) => onSystemPromptChange(e.target.value)}
-                placeholder="在此输入预设词..."
-                className="w-full bg-transparent py-3 text-sm outline-none text-gray-800 resize-none overflow-hidden font-semibold placeholder:text-gray-400"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 悬浮底部输入框：始终毛玻璃 */}
         <div className="absolute bottom-0 inset-x-0 z-50 p-8 pointer-events-none">
           <div 
             style={elementBgStyle}
