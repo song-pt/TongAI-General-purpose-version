@@ -1,0 +1,8 @@
+{
+  "name": "Tong AI Chat",
+  "description": "A clean, modern AI chat interface with customizable settings and session management.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
